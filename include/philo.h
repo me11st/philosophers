@@ -19,7 +19,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <unistd.h>
-# include <time.h>
+# include <sys/time.h>
 
 typedef struct s_config {
 	int	number_of_philosophers;
@@ -38,6 +38,8 @@ typedef struct s_philosopher {
 	pthread_t			thread;
 	pthread_mutex_t		*left_fork;
 	pthread_mutex_t		*right_fork;
+	pthread_mutex_t		meal_lock;
+    pthread_mutex_t		print_lock;
 	t_config			*config;
 	bool				*life_flag;
 }		t_philo;
@@ -49,6 +51,6 @@ void	init_philosophers(t_philo *philosophers, pthread_mutex_t *forks,
 void	*philosopher_routine(void *arg);
 void	cleanup(pthread_mutex_t *forks, t_philo *philosophers,
 			int num_philosophers);
-void	*monitor_philosophers(void *arg);
+long	get_time(void);
 
 #endif

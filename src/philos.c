@@ -46,14 +46,16 @@ void	init_philosophers(t_philo *philosophers, pthread_mutex_t *forks,
 	i = 0;
 	while (i < config->number_of_philosophers)
 	{
-		philosophers[i].id = i;
+		philosophers[i].id = i + 1;
 		philosophers[i].meals_eaten = 0;
-		philosophers[i].last_meal_time = 0;
+		philosophers[i].last_meal_time = get_time();
 		philosophers[i].config = config;
 		philosophers[i].life_flag = life_flag;
 		philosophers[i].left_fork = &forks[i];
 		philosophers[i].right_fork = &forks[(i + 1)
 			% config->number_of_philosophers];
+		pthread_mutex_init(&philosophers[i].meal_lock, NULL);
+		pthread_mutex_init(&philosophers[i].print_lock, NULL);
 		i++;
 	}
 }
@@ -70,51 +72,30 @@ static bool	has_philosopher_finished_eating(t_philo *philo)
 	return (false);
 }
 
-void	*monitor_philosophers(void *arg)
-{
-	t_philo		*philosophers = (t_philo *)arg;
-	t_config	*config = philosophers[0].config;
-	int			i;
-
-	while (1)
-	{
-		i = 0;
-		while (i < config->number_of_philosophers)
-		{
-			if (time(NULL) - philosophers[i].last_meal_time > config->time_to_die)
-			{
-				printf("Philosopher %d has died.\n", philosophers[i].id);
-				*(philosophers[i].life_flag) = false;
-				return (NULL);
-			}
-			i++;
-		}
-		usleep(1000);
-	}
-}
-
 void	*philosopher_routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	philo->last_meal_time = time(NULL);
 	while (*(philo->life_flag))
 	{
-		printf("Philosopher %d is thinking.\n", philo->id);
-		usleep(philo->config->time_to_sleep * 1000);
+		printf("%ld %d is thinking\n", get_time(), philo->id);
 		pthread_mutex_lock(philo->left_fork);
-		pthread_mutex_lock(philo->right_fork);
-		printf("Philosopher %d is eating.\n", philo->id);
-		philo->last_meal_time = time(NULL);
-		philo->meals_eaten++;
-		usleep(philo->config->time_to_eat * 1000);
-		pthread_mutex_unlock(philo->right_fork);
-		pthread_mutex_unlock(philo->left_fork);
-		if (has_philosopher_finished_eating(philo))
-			break ;
-		printf("Philosopher %d is sleeping.\n", philo->id);
-		usleep(philo->config->time_to_sleep * 1000);
+        printf("%ld %d has taken left fork\n", get_time(), philo->id);
+        pthread_mutex_lock(philo->right_fork);
+        printf("%ld %d has taken right fork\n", get_time(), philo->id);
+		pthread_mutex_lock(&philo->meal_lock);
+        philo->last_meal_time = get_time();
+        printf("%ld %d is eating\n", philo->last_meal_time, philo->id);
+        philo->meals_eaten++;
+        pthread_mutex_unlock(&philo->meal_lock);
+        usleep(philo->config->time_to_eat * 1000);
+        pthread_mutex_unlock(philo->right_fork);
+        pthread_mutex_unlock(philo->left_fork);
+        if (has_philosopher_finished_eating(philo))
+            break ;
+        printf("%ld %d is sleeping\n", get_time(), philo->id);
+        usleep(philo->config->time_to_sleep * 1000);
 	}
 	return (NULL);
 }
