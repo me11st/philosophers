@@ -16,7 +16,7 @@ void	init_config(t_config *config, int argc, char **argv)
 {
 	if (argc < 5 || argc > 6)
 	{
-		fprintf(stderr, "Usage: %s n_philo to_die to_eat to_sleep [times_to_eat]\n",
+		fprintf(stderr, "Usage: %s n_philo to_die to_eat to_sleep [eat_t]\n",
 			argv[0]);
 		exit(EXIT_FAILURE);
 	}
@@ -28,9 +28,9 @@ void	init_config(t_config *config, int argc, char **argv)
 		config->not_to_eat = atoi(argv[5]);
 	else if (argc == 5)
 		config->not_to_eat = -1;
-	if (config->number_of_philosophers <= 0 || config->time_to_die <= 0 ||
-		config->time_to_eat <= 0 || config->time_to_sleep <= 0 ||
-		(argc == 6 && config->not_to_eat <= 0))
+	if (config->number_of_philosophers <= 0 || config->time_to_die <= 0
+		|| config->time_to_eat <= 0 || config->time_to_sleep <= 0
+		|| (argc == 6 && config->not_to_eat <= 0))
 	{
 		fprintf(stderr, "Error: All input values must be positive integers.\n");
 		exit(EXIT_FAILURE);
@@ -81,21 +81,21 @@ void	*philosopher_routine(void *arg)
 	{
 		printf("%ld %d is thinking\n", get_time(), philo->id);
 		pthread_mutex_lock(philo->left_fork);
-        printf("%ld %d has taken left fork\n", get_time(), philo->id);
-        pthread_mutex_lock(philo->right_fork);
-        printf("%ld %d has taken right fork\n", get_time(), philo->id);
+		printf("%ld %d has taken left fork\n", get_time(), philo->id);
+		pthread_mutex_lock(philo->right_fork);
+		printf("%ld %d has taken right fork\n", get_time(), philo->id);
 		pthread_mutex_lock(&philo->meal_lock);
-        philo->last_meal_time = get_time();
-        printf("%ld %d is eating\n", philo->last_meal_time, philo->id);
-        philo->meals_eaten++;
-        pthread_mutex_unlock(&philo->meal_lock);
-        usleep(philo->config->time_to_eat * 1000);
-        pthread_mutex_unlock(philo->right_fork);
-        pthread_mutex_unlock(philo->left_fork);
-        if (has_philosopher_finished_eating(philo))
-            break ;
-        printf("%ld %d is sleeping\n", get_time(), philo->id);
-        usleep(philo->config->time_to_sleep * 1000);
+		philo->last_meal_time = get_time();
+		printf("%ld %d is eating\n", philo->last_meal_time, philo->id);
+		philo->meals_eaten++;
+		pthread_mutex_unlock(&philo->meal_lock);
+		usleep(philo->config->time_to_eat * 1000);
+		pthread_mutex_unlock(philo->right_fork);
+		pthread_mutex_unlock(philo->left_fork);
+		if (has_philosopher_finished_eating(philo))
+			break ;
+		printf("%ld %d is sleeping\n", get_time(), philo->id);
+		usleep(philo->config->time_to_sleep * 1000);
 	}
 	return (NULL);
 }

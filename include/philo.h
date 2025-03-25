@@ -39,7 +39,7 @@ typedef struct s_philosopher {
 	pthread_mutex_t		*left_fork;
 	pthread_mutex_t		*right_fork;
 	pthread_mutex_t		meal_lock;
-    pthread_mutex_t		print_lock;
+	pthread_mutex_t		print_lock;
 	t_config			*config;
 	bool				*life_flag;
 }		t_philo;
