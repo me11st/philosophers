@@ -28,6 +28,8 @@ typedef struct s_config {
 	int	time_to_sleep;
 	int	not_to_eat;
 	int	life_span;
+	pthread_mutex_t		print_lock;
+    pthread_mutex_t		death_mutex;
 }		t_config;
 
 // Philosopher structure
@@ -39,7 +41,6 @@ typedef struct s_philosopher {
 	pthread_mutex_t		*left_fork;
 	pthread_mutex_t		*right_fork;
 	pthread_mutex_t		meal_lock;
-	pthread_mutex_t		print_lock;
 	t_config			*config;
 	bool				*life_flag;
 }		t_philo;
@@ -52,5 +53,6 @@ void	*philosopher_routine(void *arg);
 void	cleanup(pthread_mutex_t *forks, t_philo *philosophers,
 			int num_philosophers);
 long	get_time(void);
+int		sync_printf(t_philo *philo, const char *format, ...);
 
 #endif

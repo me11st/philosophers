@@ -34,21 +34,20 @@ static bool	check_philosopher_status(t_philo *philosophers, t_config *config)
 	while (i < config->number_of_philosophers)
 	{
 		pthread_mutex_lock(&philosophers[i].meal_lock);
-		current_time = get_time();
-		if (current_time - philosophers[i].last_meal_time > config->time_to_die)
-		{
-			pthread_mutex_lock(&philosophers[i].print_lock);
-			printf("%ld %d died\n", current_time, philosophers[i].id);
-			*philosophers[i].life_flag = false;
-			pthread_mutex_unlock(&philosophers[i].print_lock);
-			pthread_mutex_unlock(&philosophers[i].meal_lock);
-			usleep(1000);
-			exit(0);
-		}
-		pthread_mutex_unlock(&philosophers[i].meal_lock);
-		if (config->not_to_eat != -1 && 
-			philosophers[i].meals_eaten < config->not_to_eat)
-			return (false);
+        current_time = get_time();
+        if (current_time - philosophers[i].last_meal_time > config->time_to_die)
+        {
+            sync_printf(&philosophers[i], "%ld %d died\n", current_time, 
+                philosophers[i].id);
+            *philosophers[i].life_flag = false;
+            pthread_mutex_unlock(&philosophers[i].meal_lock);
+            usleep(1000);
+            exit(0);
+        }
+        pthread_mutex_unlock(&philosophers[i].meal_lock);
+        if (config->not_to_eat != -1 && 
+            philosophers[i].meals_eaten < config->not_to_eat)
+            return (false);
 		i++;
 	}
 	return (config->not_to_eat != -1);

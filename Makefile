@@ -6,7 +6,7 @@ OBJ_DIR = obj
 
 # Libraries and compiler
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -g
 RM = rm -f
 
 # Source and object files
